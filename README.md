@@ -9,10 +9,10 @@ By running `npm start`, you will start getting entries as changes appear in your
 This is not in violation of any usage rules so far as I am aware, and if any member of Digital Extremes asks me to remove this repo, I will do so.
 
 ### Current options include:
-- cli
-- Discord Webhook
+- `cli`
+- `webhook` : Discord webhook
 
-Depending on your preference, use `npm run start:choice` where `choice` is one of the above.
+Depending on your preference, use `npm run start:choice` where `choice` is one of the above in code blocks.
 
 ### Current events
 - Start

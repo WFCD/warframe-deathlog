@@ -9,6 +9,8 @@ const webhook = {
   id: process.env.WEBHOOK_ID,
 };
 
+const notified = [];
+
 const splitAndWrap = string => string
   .split('\n')
   .filter(str => str)
@@ -16,17 +18,13 @@ const splitAndWrap = string => string
   .join('\n');
 
 class WebhookNotifier {
-  constructor() {
-    this.notified = [];
-  }
-
   // eslint-disable-next-line class-methods-use-this
   async out(str) {
     const url = `https://discordapp.com/api/webhooks/${webhook.id}/${webhook.token}`;
     try {
       const strings = chunkify({ string: str, breakChar: '\n' });
       for (const string of strings) {
-        this.notified.push(string);
+        notified.push(string);
         await fetch(url, {
           method: 'POST',
           body: JSON.stringify({ content: splitAndWrap(string) }),
