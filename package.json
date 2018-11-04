@@ -1,0 +1,32 @@
+{
+  "name": "warframe-deathlog",
+  "version": "0.0.1",
+  "description": "Automatically parse deathlog events from the EE.log",
+  "main": "index.js",
+  "scripts": {
+    "test": "exit 0",
+    "start": "npm run start:cli",
+    "start:cli": "node index.js",
+    "start:webhook": "node index.js -w",
+    "lint": "eslint index.js src/ --fix",
+    "dev:cli": "node index.js",
+    "dev:webhook": "node index.js -w"
+  },
+  "keywords": [
+    "warframe",
+    "deathlog",
+    "warframe-deathlog",
+    "nodejs"
+  ],
+  "author": "TobiTenno",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=10.6.0"
+  },
+  "dependencies": {
+    "colors": "^1.3.2",
+    "dotenv": "^6.1.0",
+    "node-fetch": "^2.2.0"
+  },
+  "nodemon": {}
+}
