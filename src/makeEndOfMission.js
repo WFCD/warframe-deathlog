@@ -17,7 +17,7 @@ const makeEndOfMisionLine = (line, { colors, useColors, startTime }) => {
   if (useColors) {
     return `${colors.grey(`[${ts}]`)} ${colors.grey(tag)} Reward: ${colors.green(credits)} credits`;
   }
-  return `[${ts}] ${tag} Reward: ${credits} credits`;
+  return `[${ts}] ${tag} - Reward: ${credits} credits`;
 };
 
 module.exports = makeEndOfMisionLine;
