@@ -8,7 +8,14 @@ By running `npm start`, you will start getting entries as changes appear in your
 
 This is not in violation of any usage rules so far as I am aware, and if any member of Digital Extremes asks me to remove this repo, I will do so.
 
-### Current options include:
+### Getting started
+
+- Install node.js, since this is for a windows game, [here's the installer for windows](https://nodejs.org/dist/v11.1.0/node-v11.1.0-x64.msi)
+- Clone this repo. If you don't have git installed, [install it](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
+- Run `npm i` in the cloned repository.
+- Run `npm run start:cli` for simplest usages.
+
+### Current options include
 - `cli`
 - `webhook` : Discord webhook
 
