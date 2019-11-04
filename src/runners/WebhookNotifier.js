@@ -36,6 +36,10 @@ class WebhookNotifier {
       console.error(e);
     }
   }
+
+  async log(event) {
+    await this.out(event.toString());
+  }
 }
 
 module.exports = WebhookNotifier;

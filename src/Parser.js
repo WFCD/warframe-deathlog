@@ -3,23 +3,25 @@
 const fs = require('fs');
 const path = require('path');
 const colors = require('colors/safe');
+const EventEmitter = require('events');
+const Start = require('./events/StartEvent');
+const Death = require('./events/DeathEvent');
+const EOM = require('./events/EndOfMissionEvent');
+const GameClosed = require('./events/GameClosedEvent');
+const Revived = require('./events/RevivedEvent');
+const SentDead = require('./events/SentDeadEvent');
 
-const makeDeathLine = require('./deathLine');
-const makeStart = require('./makeStart');
-const makeTs = require('./makeTs');
-const makeEndOfMission = require('./makeEndOfMission');
+const {
+  deathRegex, eomRegex, closedRegex, sentRes, sentDie,
+} = require('./regex');
 
 const defaultLogPath = `${process.env.localappdata}\\Warframe\\EE.log`;
 const runlines = [];
-let useColors = true;
 
-// eslint-disable-next-line no-console
-let out = console.log;
-
-class DeathLogParser {
+class DeathLogParser extends EventEmitter {
   // eslint-disable-next-line no-console
-  constructor(writeFunction = console.log, logPath = defaultLogPath) {
-    out = writeFunction;
+  constructor(logPath = defaultLogPath) {
+    super();
     this.path = path.resolve(logPath);
   }
 
@@ -38,45 +40,51 @@ class DeathLogParser {
     const lines = file.split('\r\n');
     let output = [];
 
-    const { playerName, startTime } = makeStart(lines);
+    const sline = new Start(lines);
 
-    let sline = '';
-    if (useColors) {
-      sline = `${colors.grey(`[${makeTs(startTime)}]`)} ${colors.grey('[START]')} - ${colors.yellow(playerName)}`;
-    } else {
-      sline = `[${makeTs(startTime)}] [START] - ${playerName}`;
-    }
-    if (!runlines.includes(sline) && playerName.length) {
-      output.push(sline);
+    if (!runlines.includes(sline) && sline.player.length) {
       runlines.push(sline);
+      output.push(sline);
     }
 
-    output.push(...(lines
-      .map((line) => {
-        const deathline = makeDeathLine(line, { startTime, colors, useColors });
-        const eom = makeEndOfMission(line, { startTime, colors, useColors });
-        if (deathline) {
-          return deathline;
+    lines.map((line) => {
+      if (deathRegex.test(line)) {
+        return new Death(line, sline.timestamp);
+      }
+      if (eomRegex.test(line)) {
+        return new EOM(line, sline.timestamp);
+      }
+      if (closedRegex.test(line)) {
+        return new GameClosed(line, sline.timestamp);
+      }
+      if (sentRes.test(line)) {
+        return new Revived(line, sline.timestamp);
+      }
+      if (sentDie.test(line)) {
+        return new SentDead(line, sline.timestamp);
+      }
+      return undefined;
+    })
+      .filter(line => line && !output.includes(line))
+      .forEach((line) => {
+        if (!runlines.includes(line)) {
+          output.push(line);
+          runlines.push(line);
         }
-        if (eom) {
-          return eom;
-        }
-        return '';
-      })
-      .map(line => line.trim())
-      .filter(line => line && line.length && !runlines.includes(line))));
+      });
+
     output = [...new Set(output)];
     runlines.push(...output);
-    const toOut = output.join('\n');
-    if (toOut.length) {
-      out(toOut);
-    }
+    output.forEach(this.newE.bind(this));
   }
 
-  start(supportsColors = true) {
-    fs.watchFile(this.path, { persistent: true, interval: 1000 }, this.update);
-    useColors = supportsColors;
+  async newE(event) {
+    // console.log(event.toString());
+    this.emit('eelog:update', event);
+  }
 
+  start() {
+    fs.watchFile(this.path, { persistent: true, interval: 1000 }, this.update);
     this.update();
   }
 }
