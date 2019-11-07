@@ -75,7 +75,15 @@ class DeathLogParser extends EventEmitter {
 
     output = [...new Set(output)];
     runlines.push(...output);
-    output.forEach(this.newE.bind(this));
+    try {
+      output.forEach(async (event) => {
+        if (this.newE) {
+          await this.newE(event);
+        }
+      });
+    } catch (e) {
+      // don't really care about errors here
+    }
   }
 
   async newE(event) {

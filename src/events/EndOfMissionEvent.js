@@ -10,8 +10,8 @@ class EndOfMissionEvent extends require('./BaseEvent') {
     super({ timestamp: 0, type: ' EOM ' });
     const matches = line.match(eomRegex);
     const timestamp = startTime.getTime() > 0
-      ? startTime.getTime() + (parseFloat(matches[0]) * 1000)
-      : matches[0];
+      ? startTime.getTime() + (parseFloat(matches[1]) * 1000)
+      : matches[1];
 
     [, this.credits] = matches;
     this.credits = String(Number.parseFloat(this.credits).toFixed(0));
