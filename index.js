@@ -22,5 +22,4 @@ parser.on('eelog:update', notifier.log.bind(notifier));
 notifier.out('/ / / TRANSMISSION INCOMING / / /');
 parser.start();
 
-
 module.exports = Parser;
