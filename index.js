@@ -19,6 +19,7 @@ if (process.argv.includes('--webhook') || process.argv.includes('-w')) {
 }
 
 parser.on('eelog:update', notifier.log.bind(notifier));
+parser.on('eelog:error', notifier.error.bind(notifier))
 notifier.out('/ / / TRANSMISSION INCOMING / / /');
 parser.start();
 

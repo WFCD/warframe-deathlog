@@ -10,11 +10,15 @@ class CLIRunner {
   }
 
   log(event) {
-    this.out(event.toString());
+    this.stream.info(event.toString());
   }
 
   out(str) {
     this.stream.log(str.grey);
+  }
+  
+  error(error) {
+    this.stream.error(error);
   }
 }
 

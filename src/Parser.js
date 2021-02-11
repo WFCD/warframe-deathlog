@@ -10,9 +10,13 @@ const EOM = require('./events/EndOfMissionEvent');
 const GameClosed = require('./events/GameClosedEvent');
 const Revived = require('./events/RevivedEvent');
 const SentDead = require('./events/SentDeadEvent');
+const AmmoEvent = require('./events/AmmoEvent');
+const ArbitrationMod = require('./events/ArbitrationMod');
+const ArbitrationSpawn = require('./events/ArbitrationSpawn');
+const EnemySpawn = require('./events/EnemySpawn');
 
 const {
-  deathRegex, eomRegex, closedRegex, sentRes, sentDie,
+  deathRegex, eomRegex, closedRegex, sentRes, sentDie, ammoRegex, arbiModRegex, arbiLocationRegex, enemySpawnRegex,
 } = require('./regex');
 
 const defaultLogPath = `${process.env.localappdata}\\Warframe\\EE.log`;
@@ -42,47 +46,60 @@ class DeathLogParser extends EventEmitter {
 
     const sline = new Start(lines);
 
-    if (!runlines.includes(sline) && sline.player.length) {
-      runlines.push(sline);
+    if (!runlines.includes(sline.toString()) && sline.player.length) {
+      runlines.push(sline.toString());
       output.push(sline);
     }
-
-    lines.map((line) => {
+    
+    const events = [];
+    for (const line of lines) {
+      let event;
       if (deathRegex.test(line)) {
-        return new Death(line, sline.timestamp);
+        event = Death;
+      } else if (eomRegex.test(line)) {
+        event = EOM;
+      } else if (closedRegex.test(line)) {
+        event = GameClosed;
+      } else if (sentRes.test(line)) {
+        event = Revived;
+      } else if (sentDie.test(line)) {
+        event = SentDead;
+      } else if (ammoRegex.test(line)) {
+        event = AmmoEvent;
+      } else if (arbiModRegex.test(line)) {
+        event = ArbitrationMod;
+      } else if (arbiLocationRegex.test(line)) {
+        event = ArbitrationSpawn;
+      } else if (enemySpawnRegex.test(line)) {
+        event = EnemySpawn;
       }
-      if (eomRegex.test(line)) {
-        return new EOM(line, sline.timestamp);
+      
+      if (event) {
+        event = new event(line, sline.timestamp);
+        if (event.resolve) {
+          await event.resolve();
+        }
+        events.push(event);
       }
-      if (closedRegex.test(line)) {
-        return new GameClosed(line, sline.timestamp);
-      }
-      if (sentRes.test(line)) {
-        return new Revived(line, sline.timestamp);
-      }
-      if (sentDie.test(line)) {
-        return new SentDead(line, sline.timestamp);
-      }
-      return undefined;
-    })
-      .filter(line => line && !output.includes(line))
+    }
+    events.filter(line => line && !output.includes(line.toString()))
       .forEach((line) => {
-        if (!runlines.includes(line)) {
+        if (!runlines.includes(line.toString())) {
           output.push(line);
-          runlines.push(line);
+          runlines.push(line.toString());
         }
       });
 
     output = [...new Set(output)];
-    runlines.push(...output);
+    runlines.push(...output.map(o => o.toString()));
     try {
-      output.forEach(async (event) => {
+      for (const e of output ) {
         if (this.newE) {
-          await this.newE(event);
+          await this.newE(e);
         }
-      });
+      }
     } catch (e) {
-      // don't really care about errors here
+      this.emit('eelog:error', e);
     }
   }
 
@@ -92,7 +109,7 @@ class DeathLogParser extends EventEmitter {
   }
 
   start() {
-    fs.watchFile(this.path, { persistent: true, interval: 1000 }, this.update);
+    fs.watchFile(this.path, { persistent: true, interval: 1000 }, this.update.bind(this));
     this.update();
   }
 }

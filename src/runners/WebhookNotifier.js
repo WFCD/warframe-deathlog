@@ -19,7 +19,7 @@ const splitAndWrap = string => string
 
 class WebhookNotifier {
   // eslint-disable-next-line class-methods-use-this
-  async out(str) {
+  async out(str, critical) {
     const url = `https://discordapp.com/api/webhooks/${webhook.id}/${webhook.token}`;
     try {
       const strings = chunkify({ string: str, breakChar: '\n' });
@@ -27,7 +27,7 @@ class WebhookNotifier {
         notified.push(string);
         await fetch(url, {
           method: 'POST',
-          body: JSON.stringify({ content: splitAndWrap(string) }),
+          body: JSON.stringify({ content: splitAndWrap(critical ? `ERROR: ${string}` : string) }),
           headers: { 'Content-Type': 'application/json' },
         });
       }
@@ -39,6 +39,10 @@ class WebhookNotifier {
 
   async log(event) {
     await this.out(event.toString());
+  }
+  
+  async error(error) {
+    this.out(error.message, true);
   }
 }
 

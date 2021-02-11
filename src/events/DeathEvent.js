@@ -27,11 +27,7 @@ class DeathEvent extends require('./BaseEvent') {
       this.damage = damage;
     }
     this.source = matches[4] ? matches[4] : UKS;
-    this.weapon = this.source === UKS ? '' : matches[5];
-    getString(this.weapon)
-      .then((wpStr) => {
-        this.weapon = wpStr;
-      });
+    this.weapon = getString(this.source === UKS ? '' : matches[5]);
     this.damage = this.damage instanceof Array ? this.damage[0] : this.damage;
   }
 

@@ -1,18 +1,25 @@
 'use strict';
 
-const fetch = require('node-fetch');
+const data = require('warframe-worldstate-data');
 
-const getString = async (str) => {
-  try {
-    const data = await fetch(`https://api.warframestat.us/languages/search/${encodeURIComponent(str)}`);
-    const strs = await data.json();
-    if (strs.length > 0 && strs.length < 2) {
-      return strs[0].value;
-    }
-  } catch (e) {
-    //  yeah, it happens, too bad
+function toTitleCase(str) {
+  return str.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+}
+
+function splitResourceName(str) {
+  return str.split(/([A-Z]?[^A-Z]*)/g).filter((item) => item).join(' ');
+}
+
+function languageString(key) {
+  const lowerKey = String(key).toLowerCase();
+  if (lowerKey in data.languages) {
+    return data.languages[lowerKey].value;
+  } if (key) {
+    return toTitleCase(splitResourceName(String(key).split('/').slice(-1)[0]));
   }
-  return str;
-};
+  return key;
+}
+
+const getString = (str) => languageString(str);
 
 module.exports = getString;
