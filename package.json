@@ -26,7 +26,7 @@
   "dependencies": {
     "colors": "^1.4.0",
     "dotenv": "^9.0.2",
-    "warframe-worldstate-data": "^1.18.13"
+    "warframe-worldstate-data": "^1.18.15"
   },
   "nodemon": {},
   "devDependencies": {
