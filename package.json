@@ -24,7 +24,7 @@
     "node": ">=10.6.0"
   },
   "dependencies": {
-    "colors": "^1.4.0",
+    "colors": "1.4.0",
     "dotenv": "^9.0.2",
     "warframe-worldstate-data": "^1.18.15"
   },
